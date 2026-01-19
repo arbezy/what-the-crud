@@ -10,13 +10,13 @@ func main() {
 	router := gin.Default()
 	router.GET("/reviews", listReviewsHandler)
 	router.POST("/reviews", createReviewsHandler)
-	router.GET("/reviews/:id", createReviewsHandler)
+	router.GET("/reviews/:id", getMoviesByID)
 	router.Run("localhost:8085")
 }
 
 func listReviewsHandler(c *gin.Context) {
 	reviews := models.ListReviewsHandler()
-	if reviews == nil || len(reviews) == 0 {
+	if len(reviews) == 0 { // len on nil returns 0
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
 		c.IndentedJSON(http.StatusOK, reviews)
