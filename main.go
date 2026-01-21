@@ -1,9 +1,11 @@
 package main
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/arbezy/what-the-crud/models"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func main() {
@@ -11,6 +13,7 @@ func main() {
 	router.GET("/reviews", listReviewsHandler)
 	router.POST("/reviews", createReviewsHandler)
 	router.GET("/reviews/:id", getMoviesByID)
+	router.PATCH("reviews/:id:rating", updateReviewRating)
 	router.Run("localhost:8085")
 }
 
@@ -38,6 +41,23 @@ func getMoviesByID(c *gin.Context) {
 	id := c.Param("id")
 
 	rev := models.GetReviewByID(id)
+	if rev == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.IndentedJSON(http.StatusOK, rev)
+	}
+}
+
+func updateReviewRating(c *gin.Context) {
+	id := c.Param("id")
+	ratingStr := c.Param("rating")
+
+	rating, err := strconv.Atoi(ratingStr)
+	if err != nil {
+		c.AbortWithError(500, err)
+	}
+
+	rev := models.UpdateReviewRating(id, rating)
 	if rev == nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {

@@ -99,3 +99,36 @@ func GetReviewByID(id string) *MovieReview {
 
 	return rev
 }
+
+func UpdateReviewRating(id string, rating int) *MovieReview {
+	if rating < 1 || rating > 10 {
+		fmt.Println("Rating is not between 1 and 10")
+		return nil
+	}
+
+	db, err := sql.Open("mysql", getConfig().FormatDSN())
+	rev := &MovieReview{}
+	if err != nil {
+		fmt.Println("Error", err.Error())
+		return nil
+	}
+
+	defer db.Close()
+
+	results, err := db.Query("UPDATE moviereviews SET rating=? WHERE id=?", rating, id)
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		return nil
+	}
+
+	if results.Next() {
+		err = results.Scan(&rev.ID, &rev.MovieName, &rev.Rating, &rev.Date)
+		if err != nil {
+			return nil
+		}
+	} else {
+		return nil
+	}
+
+	return rev
+}
